@@ -2,7 +2,7 @@
 import express from "express";
 import cors from "cors";
 import fs from "fs";
-import chatRoutes from "./routes/chat.js";
+import chatRoutes from "./src/routes/chat.js";
 
 const app = express();
 app.use(cors());
