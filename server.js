@@ -90,7 +90,9 @@ const FEEDBACK_FILE = "./feedback.json";
 // -------- API ROUTES --------
 
 // Root check
-app.get("/", (req, res) => res.send("✅ Tourism Backend Running"));
+app.get("/", (req, res) => {
+    res.status(200).send("Tourism Services API is running");
+});
 
 // Attractions
 app.get("/api/attractions", (req, res) => {
