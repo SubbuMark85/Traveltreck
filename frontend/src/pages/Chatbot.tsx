@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./Chatbot.module.css";
 import Header from "@/components/Header";
+import { sendChatMessage } from "@/services/chatbot";
 
 type Sender = "user" | "bot";
 
@@ -43,17 +44,27 @@ const Chatbot: React.FC = () => {
         setMessages((prev) => [...prev, userMsg]);
         setInput("");
 
-        // Dummy bot logic (swap with a real API call later)
-        const botText = dummyBotReply(trimmed);
-        await new Promise((r) => setTimeout(r, 600));
+        try {
+            const data = await sendChatMessage(trimmed);
 
-        const botMsg: Message = {
-            id: crypto.randomUUID(),
-            sender: "bot",
-            text: botText,
-            ts: Date.now(),
-        };
-        setMessages((prev) => [...prev, botMsg]);
+            const botMsg: Message = {
+                id: crypto.randomUUID(),
+                sender: "bot",
+                text: data.reply ?? "No response from server",
+                ts: Date.now(),
+            };
+
+            setMessages((prev) => [...prev, botMsg]);
+        } catch (err) {
+            const errorMsg: Message = {
+                id: crypto.randomUUID(),
+                sender: "bot",
+                text: "Sorry, something went wrong. Please try again.",
+                ts: Date.now(),
+            };
+
+            setMessages((prev) => [...prev, errorMsg]);
+        }
     };
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
@@ -111,22 +122,3 @@ const Chatbot: React.FC = () => {
 
 export default Chatbot;
 
-/** --- very simple demo bot (replace later with API) --- */
-function dummyBotReply(userText: string): string {
-    const t = userText.toLowerCase();
-
-    if (t.includes("waterfall") || t.includes("falls")) {
-        return "Must-see waterfalls: Dassam, Hundru, Jonha, and Hirni Falls.";
-    }
-    if (t.includes("park") || t.includes("wildlife")) {
-        return "Betla National Park is great for wildlife. Safari starts early morning!";
-    }
-    if (t.includes("temple") || t.includes("baidyanath") || t.includes("deoghar")) {
-        return "Baidyanath Jyotirlinga in Deoghar is a famous temple. Best to book stays early.";
-    }
-    if (t.includes("best time") || t.includes("season")) {
-        return "October–February is the best season. Waterfalls peak right after monsoon (Sep–Oct).";
-    }
-
-    return `You said: “${userText}”. Try asking: “waterfalls near Ranchi” or “Jharkhand itinerary”.`;
-}
