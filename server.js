@@ -10,8 +10,6 @@ app.use(express.json());
 // ✅ Serve static images (put them in backend/public/images)
 app.use("/images", express.static("public/images"));
 
-const PORT = 5000;
-
 // ✅ Attractions data (matches your frontend UI)
 const attractions = [
     {
@@ -129,6 +127,8 @@ app.post("/api/feedback", (req, res) => {
 });
 
 // Start server
+const PORT = process.env.PORT || 8080;
+
 app.listen(PORT, () => {
-    console.log(`🚀 Backend running on http://localhost:${PORT}`);
+    console.log(`Backend running on port ${PORT}`);
 });
