@@ -1,19 +1,38 @@
-import React from "react";
-import Header from "../components/Header";
-import OfflineNavigation from "../components/ui/offline";
+import { useEffect, useRef } from "react";
+import * as atlas from "azure-maps-control";
 
-const OfflinePage: React.FC = () => {
+const AzureMap = () => {
+    const mapRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (!mapRef.current) return;
+
+        const map = new atlas.Map(mapRef.current, {
+            center: [78.4867, 17.3850], // Hyderabad
+            zoom: 10,
+            authOptions: {
+                authType: atlas.AuthenticationType.subscriptionKey,
+                subscriptionKey: import.meta.env.VITE_AZURE_MAPS_KEY,
+            },
+        });
+
+        map.events.add("ready", () => {
+            const marker = new atlas.HtmlMarker({
+                position: [78.4867, 17.3850],
+                text: "Tourist Spot",
+            });
+            map.markers.add(marker);
+        });
+
+        return () => map.dispose();
+    }, []);
+
     return (
-        <div>
-            {/* Header stays fixed at top */}
-            <Header />
-
-            {/* Content section */}
-            <main className="pt-20 px-4">
-                <OfflineNavigation />
-            </main>
-        </div>
+        <div
+            ref={mapRef}
+            style={{ width: "100%", height: "500px" }}
+        />
     );
 };
 
-export default OfflinePage;
+export default AzureMap;
