@@ -21,11 +21,16 @@ router.post("/", async (req, res) => {
             }
         );
 
-        res.json(response.data.choices[0].message);
+        const reply =
+            response.data?.choices?.[0]?.message?.content ||
+            "Sorry, I couldn't generate a response.";
+
+        res.json({ reply });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "AI failed" });
+        res.status(500).json({ reply: "AI failed" });
     }
 });
 
 export default router;
+
