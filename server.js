@@ -1,18 +1,31 @@
 // backend/server.js
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import fs from "fs";
 import chatRoutes from "./src/routes/chat.js";
+import mapsRoutes from "./src/routes/maps.js";
+import aiRoutes from "./src/routes/ai.js";
+import sosRoutes from "./src/routes/sos.js";
+import userRoutes from "./src/routes/user.js";
+import { connectDB } from "./src/db/mongo.js";
+
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/chat", chatRoutes);
+app.use("/api/maps", mapsRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/sos", sosRoutes);
+app.use("/api/users", userRoutes);
 
-// ✅ Serve static images (put them in backend/public/images)
+
+
+// ✅ Serve static images 
 app.use("/images", express.static("public/images"));
 
-// ✅ Attractions data (matches your frontend UI)
+// ✅ Attractions data 
 const attractions = [
     {
         id: 1,
@@ -106,10 +119,99 @@ app.get("/api/emergency", (req, res) => {
     res.json(emergencyContacts);
 });
 
+//maps
+app.post("/api/maps/route", async (req, res) => {
+    console.log("REQ BODY:", req.body);
+
+    const { start, end, mode } = req.body;
+
+    if (!start || !end) {
+        return res.status(400).json({ error: "Missing coordinates" });
+    }
+
+    // temporary test response
+    res.json({
+        distance_km: 148.3,
+        duration_min: 131,
+        points: [
+            { latitude: start.lat, longitude: start.lon },
+            { latitude: end.lat, longitude: end.lon }
+        ]
+    });
+});
+
+app.post("/api/maps/route", async (req, res) => {
+    try {
+        const { start, end, mode = "car" } = req.body;
+
+        if (!start || !end) {
+            return res.status(400).json({ error: "Missing coordinates" });
+        }
+
+        const url =
+            `https://atlas.microsoft.com/route/directions/json` +
+            `?api-version=1.0` +
+            `&travelMode=${mode}` +
+            `&query=${start.lat},${start.lon}:${end.lat},${end.lon}` +
+            `&subscription-key=${process.env.AZURE_MAPS_KEY}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!data.routes || data.routes.length === 0) {
+            return res.status(500).json({ error: "No route found" });
+        }
+
+        const route = data.routes[0];
+
+        res.json({
+            distance_km: Number(
+                (route.summary.lengthInMeters / 1000).toFixed(2)
+            ),
+            duration_min: Number(
+                (route.summary.travelTimeInSeconds / 60).toFixed(1)
+            ),
+            points: route.legs[0].points
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Routing failed" });
+    }
+});
+
+//SOS 
+
+app.post("/api/sos", (req, res) => {
+    const { latitude, longitude, message } = req.body;
+
+    if (!latitude || !longitude) {
+        return res.status(400).json({ error: "Location required" });
+    }
+
+    const sosEvent = {
+        id: Date.now(),
+        latitude,
+        longitude,
+        message: message || "Emergency SOS triggered",
+        timestamp: new Date().toISOString(),
+    };
+
+    console.log("🚨 SOS EVENT:", sosEvent);
+
+    // TEMP: mock notification
+    res.json({
+        success: true,
+        status: "SOS received",
+        sosEvent,
+    });
+});
+
+
+
 // Feedback
 app.post("/api/feedback", (req, res) => {
     const feedback = req.body;
-
     if (!feedback.name || !feedback.message) {
         return res.status(400).json({ error: "Name and message are required" });
     }
@@ -133,6 +235,9 @@ app.post("/api/feedback", (req, res) => {
 // Start server
 const PORT = process.env.PORT || 8080;
 
-app.listen(PORT, () => {
-    console.log(`Backend running on port ${PORT}`);
+connectDB().then(() => {
+    app.listen(PORT, () => {
+        console.log(`🚀 Backend running on port ${PORT}`);
+    });
 });
+

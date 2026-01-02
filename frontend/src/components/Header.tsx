@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, X, Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { triggerSOS } from "@/services/sos";
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,17 +24,32 @@ const Header = () => {
 
     const handleSOSClick = async () => {
         try {
+            // 🔴 STEP 1: Trigger Azure Notification Hub
+            const sosRes = await fetch("http://localhost:8080/api/sos", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            if (!sosRes.ok) {
+                throw new Error("Failed to send SOS alert");
+            }
+
+            // 🟢 STEP 2: Fetch emergency contacts (existing logic)
             const response = await fetch("http://localhost:5000/api/emergency");
             if (!response.ok) throw new Error("Failed to fetch contacts");
+
             const data = await response.json();
             setContacts(data);
             setShowEmergency(true);
             setError("");
+
         } catch (err) {
-            setError("Emergency contacts unavailable");
+            setError("Emergency services unavailable");
             setShowEmergency(false);
+            console.error(err);
         }
     };
+
 
     const handleNumberClick = (contact: { type: string; phone: string }) => {
         setSuccessMsg(`Successfully triggered for: ${contact.type} (${contact.phone})`);
