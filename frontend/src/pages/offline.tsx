@@ -3,7 +3,7 @@ import * as atlas from "azure-maps-control";
 import "azure-maps-control/dist/atlas.min.css";
 
 import Header from "@/components/Header";
-import { fetchTravelAI } from "../services/travelAI";
+import { fetchTravelAI } from "../services/travelAI"
 import "./offline.css";
 
 type RouteInfo = {
