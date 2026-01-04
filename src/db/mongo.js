@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 export const connectDB = async () => {
     try {
-        await mongoose.connect(process.env.COSMOS_MONGO_URI, {
-            dbName: process.env.COSMOS_DB_NAME,
+        await mongoose.connect(process.env.MONGODB_URI, {
+            dbName: process.env.MONGODB_NAME,
             tls: true,
             authMechanism: "SCRAM-SHA-256",
             retryWrites: false,
