@@ -12,27 +12,27 @@ interface Contact {
 
 const contacts: Contact[] = [
     {
-        name: "Pooja",
+        name: "Yesh",
         role: "Tourism Helpdesk",
         phone: "+91 8008353069",
         location: "Ranchi",
     },
     {
-        name: "Sampath",
+        name: "Naresh",
         role: "Emergency Support",
         phone: "+91 6302956233",
         location: "Jamshedpur",
     },
     {
-        name: "Vinneth",
+        name: "Mahesh",
         role: "Local Travel Agent",
-        phone: "+91 9290569936",
+        phone: "+91 9239432834",
         location: "Dhanbad",
     },
     {
-        name: "Vipin",
+        name: "Suresh",
         role: "Forest Dept. Helpline",
-        phone: "+91 7013324566",
+        phone: "+91 9089899889",
         location: "Hazaribagh",
     },
 ];

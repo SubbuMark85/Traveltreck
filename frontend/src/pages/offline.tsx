@@ -4,6 +4,7 @@ import "azure-maps-control/dist/atlas.min.css";
 
 import Header from "@/components/Header";
 import { fetchTravelAI } from "../services/travelAI"
+import CrowdAlert from "../pages/CrowdAlert";
 import "./offline.css";
 
 type RouteInfo = {
@@ -96,6 +97,7 @@ const AzureMap = () => {
                     {routeInfo ? (
                         <>
                             <h3>Route Info</h3>
+
                             <p><b>Distance:</b> {routeInfo.distance_km} km</p>
                             <p><b>Duration:</b> {routeInfo.duration_min} mins</p>
 
@@ -105,8 +107,14 @@ const AzureMap = () => {
                                     <p><b>Summary:</b> {aiResult.summary ?? "No summary available"}</p>
                                 </>
                             ) : (
-                                <p><i>Analyzing route safety…</i></p>
+                                <p><i>Analyzing route safety...</i></p>
                             )}
+
+                            {/* 👇 CROWD ALERT UI */}
+                            <CrowdAlert
+                                area="Banjara Hills"
+                                level="HIGH"
+                            />
                         </>
                     ) : (
                         <p>Select a destination to see route details</p>

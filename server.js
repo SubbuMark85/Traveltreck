@@ -9,6 +9,7 @@ import aiRoutes from "./src/routes/ai.js";
 import sosRoutes from "./src/routes/sos.js";
 import userRoutes from "./src/routes/user.js";
 import { connectDB } from "./src/db/mongo.js";
+import CrowdAlert from "./src/routes/crowdPredict.js";
 
 
 const app = express();
@@ -19,6 +20,7 @@ app.use("/api/maps", mapsRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/sos", sosRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api", CrowdAlert);
 
 
 
@@ -140,45 +142,45 @@ app.post("/api/maps/route", async (req, res) => {
     });
 });
 
-app.post("/api/maps/route", async (req, res) => {
-    try {
-        const { start, end, mode = "car" } = req.body;
+// app.post("/api/maps/route", async (req, res) => {
+//     try {
+//         const { start, end, mode = "car" } = req.body;
 
-        if (!start || !end) {
-            return res.status(400).json({ error: "Missing coordinates" });
-        }
+//         if (!start || !end) {
+//             return res.status(400).json({ error: "Missing coordinates" });
+//         }
 
-        const url =
-            `https://atlas.microsoft.com/route/directions/json` +
-            `?api-version=1.0` +
-            `&travelMode=${mode}` +
-            `&query=${start.lat},${start.lon}:${end.lat},${end.lon}` +
-            `&subscription-key=${process.env.AZURE_MAPS_KEY}`;
+//         const url =
+//             `https://atlas.microsoft.com/route/directions/json` +
+//             `?api-version=1.0` +
+//             `&travelMode=${mode}` +
+//             `&query=${start.lat},${start.lon}:${end.lat},${end.lon}` +
+//             `&subscription-key=${process.env.AZURE_MAPS_KEY}`;
 
-        const response = await fetch(url);
-        const data = await response.json();
+//         const response = await fetch(url);
+//         const data = await response.json();
 
-        if (!data.routes || data.routes.length === 0) {
-            return res.status(500).json({ error: "No route found" });
-        }
+//         if (!data.routes || data.routes.length === 0) {
+//             return res.status(500).json({ error: "No route found" });
+//         }
 
-        const route = data.routes[0];
+//         const route = data.routes[0];
 
-        res.json({
-            distance_km: Number(
-                (route.summary.lengthInMeters / 1000).toFixed(2)
-            ),
-            duration_min: Number(
-                (route.summary.travelTimeInSeconds / 60).toFixed(1)
-            ),
-            points: route.legs[0].points
-        });
+//         res.json({
+//             distance_km: Number(
+//                 (route.summary.lengthInMeters / 1000).toFixed(2)
+//             ),
+//             duration_min: Number(
+//                 (route.summary.travelTimeInSeconds / 60).toFixed(1)
+//             ),
+//             points: route.legs[0].points
+//         });
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Routing failed" });
-    }
-});
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).json({ error: "Routing failed" });
+//     }
+// });
 
 //SOS 
 
